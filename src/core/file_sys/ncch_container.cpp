@@ -419,7 +419,10 @@ Loader::ResultStatus NCCHContainer::Load() {
 Loader::ResultStatus NCCHContainer::LoadOverrides() {
     // Check for split-off files, mark the archive as tainted if we will use them
     std::string romfs_override = filepath + ".romfs";
+    std::string romfsdir_override = filepath + ".romfsdir/";
     if (FileUtil::Exists(romfs_override)) {
+        is_tainted = true;
+    } else if (FileUtil::Exists(romfsdir_override) && FileUtil::IsDirectory(romfsdir_override)) {
         is_tainted = true;
     }
 
@@ -634,7 +637,24 @@ Loader::ResultStatus NCCHContainer::ReadRomFS(std::shared_ptr<RomFSReader>& romf
 
 Loader::ResultStatus NCCHContainer::ReadOverrideRomFS(std::shared_ptr<RomFSReader>& romfs_file) {
     // Check for RomFS overrides
-    std::string split_filepath = filepath + ".romfs";
+
+    std::string split_filepath = filepath + ".romfsdir";
+    // if loading romfs folder, we need a special reader
+    if (FileUtil::Exists(split_filepath) && FileUtil::IsDirectory(split_filepath)) {
+        LOG_WARNING(Service_FS, "Folder {} overriding built-in RomFS", split_filepath);
+
+        // creating a RomFSdir reader may throw exceptions, if so catch and fail loading
+        try {
+            romfs_file = std::make_shared<RomFSReader>(split_filepath);
+        } catch (std::exception e) {
+            LOG_CRITICAL(Service_FS, "Error loading override RomFS folder");
+            file.Close(); // close file so entire loading process will fail
+            return Loader::ResultStatus::Error;
+        }
+        return Loader::ResultStatus::Success;
+    }
+
+    split_filepath = filepath + ".romfs";
     if (FileUtil::Exists(split_filepath)) {
         FileUtil::IOFile romfs_file_inner(split_filepath, "rb");
         if (romfs_file_inner.IsOpen()) {

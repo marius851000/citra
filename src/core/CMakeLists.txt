@@ -74,6 +74,8 @@ add_library(core STATIC
     file_sys/path_parser.h
     file_sys/romfs_reader.cpp
     file_sys/romfs_reader.h
+    file_sys/romfs_l3data.cpp
+    file_sys/romfs_l3data.h
     file_sys/savedata_archive.cpp
     file_sys/savedata_archive.h
     file_sys/seed_db.cpp
