@@ -6,14 +6,17 @@
 #include "common/file_util.h"
 #include "romfs_l3data.h"
 
+#include <locale>
+#include <cstring>
+
 namespace FileSys {
 
 s64 Align(s64 a_nData, s64 a_nAlignment) {
     return (a_nData + a_nAlignment - 1) / a_nAlignment * a_nAlignment;
 }
 
-u16str ToU16(const std::string& s) {
-    std::wstring_convert<std::codecvt_utf8_utf16<std::uint16_t>, std::uint16_t> conv;
+std::u16string ToU16(const std::string& s) {
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> conv;
     return conv.from_bytes(s);
 }
 
@@ -370,7 +373,7 @@ void RomFSL3::buildHeaderData() {
               cFileSizeAlignment));
 }
 
-u32 RomFSL3::hash(s32 parentOffset, u16str& entryName) {
+u32 RomFSL3::hash(s32 parentOffset, std::u16string& entryName) {
     u32 uHash = parentOffset ^ 123456789;
     for (int i = 0; i < static_cast<int>(entryName.size()); i++) {
         uHash = ((uHash >> 5) | (uHash << 27)) ^ entryName[i];

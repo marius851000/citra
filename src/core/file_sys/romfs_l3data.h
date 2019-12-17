@@ -22,8 +22,6 @@
 
 namespace FileSys {
 
-typedef std::basic_string<std::uint16_t> u16str;
-
 #include SDW_MSC_PUSH_PACKED
 struct l3HeaderSection {
     u32 Offset;
@@ -79,7 +77,7 @@ class RomFSL3 {
     struct l3Entry // File/Dir entry created when packing
     {
         std::string Path;    //  absolote local file/dir path (on your computer)
-        u16str EntryName;    //  name of the file/dir
+        std::u16string EntryName;    //  name of the file/dir
         int EntryNameSize;   //  length of above name
         s32 EntryOffset;     //
         s32 BucketIndex;     //
@@ -128,7 +126,7 @@ private:
 
     void buildHeaderData();
 
-    u32 hash(s32 a_nParentOffset, u16str& a_sEntryName);
+    u32 hash(s32 a_nParentOffset, std::u16string& a_sEntryName);
 
     std::string romFsDirName;
 
